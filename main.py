@@ -1,54 +1,53 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional
 
 app = FastAPI()
 
-# Modelo del mensaje
+# Modelo de datos
 class Mensaje(BaseModel):
     id: int
     user: str
     mensaje: str
 
-    # Base de datos temporal (en memoria)
-db: List[Mensaje] = []
+# Lista para guardar los mensajes
+mensajes = []
 
-# GET: todos los mensajes
-@app.get("/mensajes", response_model=List[Mensaje])
-def obtener_mensajes():
-    return db
+# GET: obtener todos los mensajes
+@app.get("/mensajes")
+def get_mensajes():
+    return mensajes
 
-# GET: mensaje por ID
-@app.get("/mensajes/{mensaje_id}", response_model=Mensaje)
-def obtener_mensaje(mensaje_id: int):
-    for mensaje in db:
-        if mensaje.id == mensaje_id:
-            return mensaje
+# GET: obtener mensaje por ID
+@app.get("/mensajes/{id}")
+def get_mensaje(id: int):
+    for m in mensajes:
+        if m.id == id:
+            return m
     raise HTTPException(status_code=404, detail="Mensaje no encontrado")
 
 # POST: crear nuevo mensaje
-@app.post("/mensajes", response_model=Mensaje)
+@app.post("/mensajes")
 def crear_mensaje(mensaje: Mensaje):
-    for m in db:
+    for m in mensajes:
         if m.id == mensaje.id:
-            raise HTTPException(status_code=400, detail="El ID ya existe")
-    db.append(mensaje)
+            raise HTTPException(status_code=400, detail="Ya existe un mensaje con ese ID")
+    mensajes.append(mensaje)
     return mensaje
 
 # PUT: actualizar mensaje por ID
-@app.put("/mensajes/{mensaje_id}", response_model=Mensaje)
-def actualizar_mensaje(mensaje_id: int, mensaje_actualizado: Mensaje):
-    for i, mensaje in enumerate(db):
-        if mensaje.id == mensaje_id:
-            db[i] = mensaje_actualizado
+@app.put("/mensajes/{id}")
+def actualizar_mensaje(id: int, mensaje_actualizado: Mensaje):
+    for i in range(len(mensajes)):
+        if mensajes[i].id == id:
+            mensajes[i] = mensaje_actualizado
             return mensaje_actualizado
     raise HTTPException(status_code=404, detail="Mensaje no encontrado")
 
 # DELETE: eliminar mensaje por ID
-@app.delete("/mensajes/{mensaje_id}")
-def eliminar_mensaje(mensaje_id: int):
-    for i, mensaje in enumerate(db):
-        if mensaje.id == mensaje_id:
-            del db[i]
+@app.delete("/mensajes/{id}")
+def borrar_mensaje(id: int):
+    for i in range(len(mensajes)):
+        if mensajes[i].id == id:
+            del mensajes[i]
             return {"mensaje": "Mensaje eliminado"}
     raise HTTPException(status_code=404, detail="Mensaje no encontrado")

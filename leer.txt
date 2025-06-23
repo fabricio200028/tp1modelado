@@ -1,0 +1,7 @@
+Pasos para correr corectamente la API:
+
+1) Intalar paquetes: pip install fastapi uvicorn
+
+2) Ejecutar servidor: uvicorn main:app --reload
+
+3) http://127.0.0.1:8000/docs
