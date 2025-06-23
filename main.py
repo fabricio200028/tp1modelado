@@ -22,7 +22,7 @@ def get_mensajes():
 def get_mensaje(id: int):
     for m in mensajes:
         if m.id == id:
-            return m
+            return m.dict()
     raise HTTPException(status_code=404, detail="Mensaje no encontrado")
 
 # POST: crear nuevo mensaje
